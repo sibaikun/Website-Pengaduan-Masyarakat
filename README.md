@@ -22,6 +22,7 @@ Pastikan kamu sudah menginstall:
 - **Node.js & npm** (opsional, kalau pakai asset build)  
 - **Git**
 
+Alternative : Menggunakan aplikasi XAMPP, WAMP, Laragon, dsb.
 ---
 
 ##  Instalasi
