@@ -56,36 +56,33 @@
             <div class="container mx-auto px-4">
                 <div class="bg-white rounded-lg shadow-lg p-8">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
-                        <div class="col-md-3 text-center">
+                        <div class="p-4">
                             <div class="text-4xl font-bold text-red-500 mb-2">{{ $stats['total'] ?? 0 }}</div>
                             <div class="text-gray-600 font-medium">Total Pengaduan</div>
-                            <small class="text-muted">
-                                <i class="fas fa-chart-line"></i> Semua waktu
-                            </small>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-chart-line mr-1"></i>Semua waktu
+                            </div>
                         </div>
-
-                        <div class="col-md-3 text-center">
+                        <div class="p-4">
                             <div class="text-4xl font-bold text-orange-500 mb-2">{{ $stats['processing'] ?? 0 }}</div>
                             <div class="text-gray-600 font-medium">Sedang Diproses</div>
-                            <small class="text-muted">
-                                <i class="fas fa-clock"></i> Dalam antrian
-                            </small>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-clock mr-1"></i>Dalam antrian
+                            </div>
                         </div>
-
-                        <div class="col-md-3 text-center">
+                        <div class="p-4">
                             <div class="text-4xl font-bold text-green-500 mb-2">{{ $stats['resolved'] ?? 0 }}</div>
                             <div class="text-gray-600 font-medium">Telah Selesai</div>
-                            <small class="text-muted">
-                                <i class="fas fa-check-circle"></i> Terselesaikan
-                            </small>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-check-circle mr-1"></i>Terselesaikan
+                            </div>
                         </div>
-
-                        <div class="col-md-3 text-center">
+                        <div class="p-4">
                             <div class="text-4xl font-bold text-blue-500 mb-2">{{ round($stats['average_days'] ?? 0) }}</div>
                             <div class="text-gray-600 font-medium">Rata-rata Hari</div>
-                            <small class="text-muted">
-                                <i class="fas fa-calendar-alt"></i> Waktu penyelesaian
-                            </small>
+                            <div class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-calendar-alt mr-1"></i>Waktu penyelesaian
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -123,10 +120,19 @@
                                 {{-- Isi pengaduan --}}
                                 <div class="flex-1">
                                     <h4 class="font-semibold text-gray-800 mb-1">{{ $complaint->title }}</h4>
-                                    <p class="text-gray-600 text-sm mb-2">{{ Str::limit($complaint->content, 80) }}</p>
+                                    
+                                    {{-- Content with Read More functionality --}}
+                                    <div class="complaint-content" data-full="{{ $complaint->content }}">
+                                        <p class="text-gray-600 text-sm mb-2 complaint-text">{{ Str::limit($complaint->content, 80) }}</p>
+                                        @if(strlen($complaint->content) > 80)
+                                            <button class="read-more-btn text-blue-500 text-xs font-medium hover:text-blue-700 transition-colors">
+                                                <i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya
+                                            </button>
+                                        @endif
+                                    </div>
                                     
                                     {{-- Info pengaduan --}}
-                                    <div class="flex justify-between items-center text-xs text-gray-500 mb-2">
+                                    <div class="flex justify-between items-center text-xs text-gray-500 mb-2 mt-2">
                                         <div class="flex items-center">
                                             <i class="fas fa-user mr-1"></i> {{ $complaint->user->name }}
                                         </div>
@@ -146,7 +152,16 @@
                                                         <span class="ml-2">· {{ \Carbon\Carbon::parse($complaint->responded_at)->diffForHumans() }}</span>
                                                     @endif
                                                 </div>
-                                                <p class="text-sm text-gray-700">{{ $complaint->admin_response }}</p>
+                                                
+                                                {{-- Admin response with Read More functionality --}}
+                                                <div class="admin-response" data-full="{{ $complaint->admin_response }}">
+                                                    <p class="text-sm text-gray-700 admin-text">{{ Str::limit($complaint->admin_response, 80) }}</p>
+                                                    @if(strlen($complaint->admin_response) > 80)
+                                                        <button class="admin-read-more-btn text-blue-500 text-xs font-medium hover:text-blue-700 transition-colors">
+                                                            <i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya
+                                                        </button>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </div>
                                     @endif
@@ -184,11 +199,82 @@
             </div>
         </footer>
     </div>
+    
     <script>
+        // Initialize read more functionality when DOM is loaded
+        document.addEventListener("DOMContentLoaded", function () {
+            initializeReadMore();
+        });
+
+        function initializeReadMore() {
+            // Proses semua elemen dengan class complaint-content
+            document.querySelectorAll('.complaint-content').forEach(function(element) {
+                const fullText = element.getAttribute('data-full');
+                const textElement = element.querySelector('.complaint-text');
+                const button = element.querySelector('.read-more-btn');
+                
+                if (fullText && fullText.length > 80) {
+                    const shortText = fullText.substring(0, 80) + '...';
+                    let isExpanded = false;
+                    
+                    textElement.textContent = shortText;
+                    
+                    if (button) {
+                        button.addEventListener('click', function() {
+                            if (!isExpanded) {
+                                textElement.textContent = fullText;
+                                button.innerHTML = '<i class="fas fa-chevron-up mr-1"></i>Tutup';
+                                isExpanded = true;
+                            } else {
+                                textElement.textContent = shortText;
+                                button.innerHTML = '<i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya';
+                                isExpanded = false;
+                            }
+                        });
+                    }
+                } else {
+                    // Jika teks pendek, sembunyikan tombol
+                    if (button) button.style.display = 'none';
+                }
+            });
+
+            // Proses semua elemen admin-response
+            document.querySelectorAll('.admin-response').forEach(function(element) {
+                const fullText = element.getAttribute('data-full');
+                const textElement = element.querySelector('.admin-text');
+                const button = element.querySelector('.admin-read-more-btn');
+                
+                if (fullText && fullText.length > 80) {
+                    const shortText = fullText.substring(0, 80) + '...';
+                    let isExpanded = false;
+                    
+                    textElement.textContent = shortText;
+                    
+                    if (button) {
+                        button.addEventListener('click', function() {
+                            if (!isExpanded) {
+                                textElement.textContent = fullText;
+                                button.innerHTML = '<i class="fas fa-chevron-up mr-1"></i>Tutup';
+                                isExpanded = true;
+                            } else {
+                                textElement.textContent = shortText;
+                                button.innerHTML = '<i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya';
+                                isExpanded = false;
+                            }
+                        });
+                    }
+                } else {
+                    // Jika teks pendek, sembunyikan tombol
+                    if (button) button.style.display = 'none';
+                }
+            });
+        }
+
         function openImageModal(src) {
             document.getElementById('modalImage').src = src;
             document.getElementById('imageModal').classList.remove('hidden');
         }
+
         function closeImageModal() {
             document.getElementById('imageModal').classList.add('hidden');
         }
