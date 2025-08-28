@@ -113,7 +113,7 @@
                                 <i class="fas fa-user-edit text-red-500 mr-3"></i>
                                 Pengaduan Saya
                             </h2>
-                            <a href="{{ route('complaints.index') }}" class="bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors text-sm">
+                            <a href="/complaints" class="bg-red-100 text-red-600 px-4 py-2 rounded-lg hover:bg-red-200 transition-colors text-sm">
                                 <i class="fas fa-arrow-right mr-1"></i>Lihat Semua
                             </a>
                         </div>
@@ -150,8 +150,17 @@
                                                 {{ ucfirst($complaint->status) }}
                                             </span>
                                         </div>
-                                        <p class="text-gray-600 text-sm mb-2">{{ Str::limit($complaint->content, 80) }}</p>
-                                        <div class="flex items-center text-xs text-gray-500 mb-2">
+                                        
+                                        <div class="complaint-content" data-full="{{ $complaint->content }}">
+                                            <p class="text-gray-600 text-sm mb-2 complaint-text">{{ Str::limit($complaint->content, 100) }}</p>
+                                            @if(strlen($complaint->content) > 100)
+                                                <button class="read-more-btn text-red-500 text-xs font-medium hover:text-red-700 transition-colors">
+                                                    <i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya
+                                                </button>
+                                            @endif
+                                        </div>
+
+                                        <div class="flex items-center text-xs text-gray-500 mb-2 mt-2">
                                             <i class="fas fa-clock mr-1"></i>{{ $complaint->created_at->diffForHumans() }}
                                         </div>
 
@@ -166,7 +175,15 @@
                                                             <span class="ml-2">· {{ \Carbon\Carbon::parse($complaint->responded_at)->diffForHumans() }}</span>
                                                         @endif
                                                     </div>
-                                                    <p class="text-sm text-gray-700">{{ $complaint->admin_response }}</p>
+                                                    
+                                                    <div class="admin-response" data-full="{{ $complaint->admin_response }}">
+                                                        <p class="text-sm text-gray-700 admin-text">{{ Str::limit($complaint->admin_response, 100) }}</p>
+                                                        @if(strlen($complaint->admin_response) > 100)
+                                                            <button class="admin-read-more-btn text-blue-500 text-xs font-medium hover:text-blue-700 transition-colors">
+                                                                <i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya
+                                                            </button>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </div>
                                         @endif
@@ -214,10 +231,18 @@
                                     {{-- Isi pengaduan --}}
                                     <div class="flex-1">
                                         <h4 class="font-semibold text-gray-800 mb-1">{{ $complaint->title }}</h4>
-                                        <p class="text-gray-600 text-sm mb-2">{{ Str::limit($complaint->content, 80) }}</p>
+                                        
+                                        <div class="complaint-content" data-full="{{ $complaint->content }}">
+                                            <p class="text-gray-600 text-sm mb-2 complaint-text">{{ Str::limit($complaint->content, 100) }}</p>
+                                            @if(strlen($complaint->content) > 100)
+                                                <button class="read-more-btn text-blue-500 text-xs font-medium hover:text-blue-700 transition-colors">
+                                                    <i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya
+                                                </button>
+                                            @endif
+                                        </div>
                                         
                                         {{-- Info pengaduan --}}
-                                        <div class="flex justify-between items-center text-xs text-gray-500 mb-2">
+                                        <div class="flex justify-between items-center text-xs text-gray-500 mb-2 mt-2">
                                             <div class="flex items-center">
                                                 <i class="fas fa-user mr-1"></i> {{ $complaint->user->name }}
                                             </div>
@@ -237,7 +262,15 @@
                                                             <span class="ml-2">· {{ \Carbon\Carbon::parse($complaint->responded_at)->diffForHumans() }}</span>
                                                         @endif
                                                     </div>
-                                                    <p class="text-sm text-gray-700">{{ $complaint->admin_response }}</p>
+                                                    
+                                                    <div class="admin-response" data-full="{{ $complaint->admin_response }}">
+                                                        <p class="text-sm text-gray-700 admin-text">{{ Str::limit($complaint->admin_response, 100) }}</p>
+                                                        @if(strlen($complaint->admin_response) > 100)
+                                                            <button class="admin-read-more-btn text-blue-500 text-xs font-medium hover:text-blue-700 transition-colors">
+                                                                <i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya
+                                                            </button>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </div>
                                         @endif
@@ -282,7 +315,70 @@
                     menu.classList.add("hidden");
                 }
             });
+
+            // Fungsi Read More untuk pengaduan
+            initializeReadMore();
         });
+
+        function initializeReadMore() {
+            // Proses semua elemen dengan class complaint-content
+            document.querySelectorAll('.complaint-content').forEach(function(element) {
+                const fullText = element.getAttribute('data-full');
+                const textElement = element.querySelector('.complaint-text');
+                const button = element.querySelector('.read-more-btn');
+                
+                if (fullText && fullText.length > 100) {
+                    const shortText = fullText.substring(0, 100) + '...';
+                    let isExpanded = false;
+                    
+                    textElement.textContent = shortText;
+                    
+                    button.addEventListener('click', function() {
+                        if (!isExpanded) {
+                            textElement.textContent = fullText;
+                            button.innerHTML = '<i class="fas fa-chevron-up mr-1"></i>Tutup';
+                            isExpanded = true;
+                        } else {
+                            textElement.textContent = shortText;
+                            button.innerHTML = '<i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya';
+                            isExpanded = false;
+                        }
+                    });
+                } else {
+                    // Jika teks pendek, sembunyikan tombol
+                    if (button) button.style.display = 'none';
+                }
+            });
+
+            // Proses semua elemen admin-response
+            document.querySelectorAll('.admin-response').forEach(function(element) {
+                const fullText = element.getAttribute('data-full');
+                const textElement = element.querySelector('.admin-text');
+                const button = element.querySelector('.admin-read-more-btn');
+                
+                if (fullText && fullText.length > 100) {
+                    const shortText = fullText.substring(0, 100) + '...';
+                    let isExpanded = false;
+                    
+                    textElement.textContent = shortText;
+                    
+                    button.addEventListener('click', function() {
+                        if (!isExpanded) {
+                            textElement.textContent = fullText;
+                            button.innerHTML = '<i class="fas fa-chevron-up mr-1"></i>Tutup';
+                            isExpanded = true;
+                        } else {
+                            textElement.textContent = shortText;
+                            button.innerHTML = '<i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya';
+                            isExpanded = false;
+                        }
+                    });
+                } else {
+                    // Jika teks pendek, sembunyikan tombol
+                    if (button) button.style.display = 'none';
+                }
+            });
+        }
 
         function openImageModal(src) {
             document.getElementById('modalImage').src = src;
