@@ -14,7 +14,7 @@ Aplikasi web untuk pengaduan masyarakat berbasis Laravel, ini adalah hasil magan
 
 ---
 
-##  Prasyarat
+##  Persyaratan
 Pastikan kamu sudah menginstall:
 - **PHP ≥ 8.1**  
 - **Composer**  
