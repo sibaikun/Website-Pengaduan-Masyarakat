@@ -15,14 +15,13 @@ Aplikasi web untuk pengaduan masyarakat berbasis Laravel, ini adalah hasil magan
 ---
 
 ##  Persyaratan
-Pastikan kamu sudah menginstall:
+Pastikan kamu sudah menginstall: (Alternative : Menggunakan aplikasi XAMPP, WAMP, Laragon, dsb.)
 - **PHP ≥ 8.1**  
 - **Composer**  
 - **MySQL/MariaDB**  
 - **Node.js & npm** (opsional, kalau pakai asset build)  
 - **Git**
 
-Alternative : Menggunakan aplikasi XAMPP, WAMP, Laragon, dsb.
 ---
 
 ##  Instalasi
