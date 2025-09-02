@@ -62,9 +62,9 @@
                             <tr>
                                 <th class="px-4 py-2 border text-left">Pelapor</th>
                                 <th class="px-4 py-2 border text-left">Judul</th>
-                                <th class="px-4 py-2 border text-left">Isi Pengaduan</th> {{-- Kolom baru untuk keterangan --}}
-                                <th class="px-4 py-2 border text-left">Kategori</th> {{-- Kolom kategori --}}
-                                <th class="px-4 py-2 border text-left">Lokasi</th> {{-- Kolom lokasi --}}
+                                <th class="px-4 py-2 border text-left">Isi Pengaduan</th>
+                                <th class="px-4 py-2 border text-left">Kategori</th>
+                                <th class="px-4 py-2 border text-left">Lokasi</th>
                                 <th class="px-4 py-2 border text-center">Foto</th>
                                 <th class="px-4 py-2 border text-center">Status</th>
                                 <th class="px-4 py-2 border text-left">Balasan Admin</th>
@@ -81,21 +81,24 @@
                                         </div>
                                     </td>
 
-                                    {{-- Isi Pengaduan / Keterangan --}}
+                                    {{-- Isi Pengaduan / Keterangan - FIXED VERSION --}}
                                     <td class="px-4 py-2 border">
                                         <div class="max-w-sm">
-                                            <p class="text-sm text-gray-700 leading-relaxed">
-                                                {{ Str::limit($complaint->content, 150, '...') }}
-                                            </p>
-                                            @if(strlen($complaint->content) > 150)
-                                                <button onclick="toggleContent({{ $complaint->id }})" 
-                                                        class="text-blue-500 text-xs hover:underline mt-1">
-                                                    <span id="toggle-text-{{ $complaint->id }}">Lihat selengkapnya</span>
-                                                </button>
-                                                <div id="full-content-{{ $complaint->id }}" class="hidden mt-2 text-sm text-gray-700">
-                                                    {{ $complaint->content }}
-                                                </div>
-                                            @endif
+                                            <div id="content-container-{{ $complaint->id }}">
+                                                <p class="text-sm text-gray-700 leading-relaxed" id="short-content-{{ $complaint->id }}">
+                                                    {{ Str::limit($complaint->content, 150, '...') }}
+                                                </p>
+                                                @if(strlen($complaint->content) > 150)
+                                                    <p class="text-sm text-gray-700 leading-relaxed hidden" id="full-content-{{ $complaint->id }}">
+                                                        {{ $complaint->content }}
+                                                    </p>
+                                                    <button onclick="toggleContent({{ $complaint->id }})" 
+                                                            class="text-blue-500 text-xs hover:underline mt-1" 
+                                                            id="toggle-btn-{{ $complaint->id }}">
+                                                        Lihat selengkapnya
+                                                    </button>
+                                                @endif
+                                            </div>
                                         </div>
                                     </td>
 
@@ -212,17 +215,22 @@
         });
     });
 
-    // Fungsi untuk toggle konten lengkap
+    // Fungsi untuk toggle konten lengkap - FIXED VERSION
     function toggleContent(complaintId) {
+        const shortContent = document.getElementById(`short-content-${complaintId}`);
         const fullContent = document.getElementById(`full-content-${complaintId}`);
-        const toggleText = document.getElementById(`toggle-text-${complaintId}`);
+        const toggleBtn = document.getElementById(`toggle-btn-${complaintId}`);
         
         if (fullContent.classList.contains('hidden')) {
+            // Tampilkan konten lengkap, sembunyikan konten singkat
+            shortContent.classList.add('hidden');
             fullContent.classList.remove('hidden');
-            toggleText.textContent = 'Sembunyikan';
+            toggleBtn.textContent = 'Sembunyikan';
         } else {
+            // Tampilkan konten singkat, sembunyikan konten lengkap
             fullContent.classList.add('hidden');
-            toggleText.textContent = 'Lihat selengkapnya';
+            shortContent.classList.remove('hidden');
+            toggleBtn.textContent = 'Lihat selengkapnya';
         }
     }
     </script>
