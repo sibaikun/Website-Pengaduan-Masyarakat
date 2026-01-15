@@ -121,9 +121,10 @@
                             @forelse($myComplaints as $complaint)
                                 <div class="flex items-start space-x-4 border-l-4 
                                     @if($complaint->status == 'resolved') border-green-500 bg-green-50
-                                    @elseif($complaint->status == 'processing') border-yellow-500 bg-yellow-50
+                                    @elseif($complaint->status == 'processing') border-blue-500 bg-blue-50
+                                    @elseif($complaint->status == 'pending') border-yellow-500 bg-yellow-50
                                     @else border-red-500 bg-red-50 @endif
-                                    pl-4 py-3 rounded-r-lg">
+                                    pl-4 py-3 rounded-r-lg hover:shadow-sm transition-all">
                                     
                                     {{-- Thumbnail gambar --}}
                                     @if($complaint->image_path)
@@ -145,9 +146,14 @@
                                             <h4 class="font-semibold text-gray-800">{{ $complaint->title }}</h4>
                                             <span class="px-2 py-1 rounded-full text-xs font-medium 
                                                 @if($complaint->status == 'resolved') bg-green-100 text-green-800
-                                                @elseif($complaint->status == 'processing') bg-yellow-100 text-yellow-800
+                                                @elseif($complaint->status == 'processing') bg-blue-100 text-blue-800
+                                                @elseif($complaint->status == 'pending') bg-yellow-100 text-yellow-800
                                                 @else bg-red-100 text-red-800 @endif">
-                                                {{ ucfirst($complaint->status) }}
+                                                @if($complaint->status == 'pending') Menunggu
+                                                @elseif($complaint->status == 'processing') Diproses
+                                                @elseif($complaint->status == 'resolved') Selesai
+                                                @else Ditolak
+                                                @endif
                                             </span>
                                         </div>
                                         
@@ -192,7 +198,6 @@
                             @empty
                                 <p class="text-gray-500">Belum ada pengaduan.</p>
                             @endforelse
-
                             <div class="mt-6 text-center">
                                 <a href="{{ route('complaints.create') }}" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors inline-flex items-center">
                                     <i class="fas fa-plus mr-2"></i>
@@ -212,7 +217,12 @@
                         </div>
                         <div class="p-6 space-y-4 max-h-96 overflow-y-auto">
                             @forelse($recentComplaints as $complaint)
-                                <div class="flex items-start space-x-4 border-l-4 border-blue-500 pl-4 py-3 hover:bg-blue-50 transition-colors rounded-lg">
+                                <div class="flex items-start space-x-4 border-l-4 
+                                    @if($complaint->status == 'resolved') border-green-500 bg-green-50
+                                    @elseif($complaint->status == 'processing') border-blue-500 bg-blue-50
+                                    @elseif($complaint->status == 'pending') border-yellow-500 bg-yellow-50
+                                    @else border-red-500 bg-red-50 @endif
+                                    pl-4 py-3 rounded-r-lg hover:shadow-sm transition-all">
                                     
                                     {{-- Thumbnail gambar --}}
                                     @if($complaint->image_path)
@@ -230,7 +240,20 @@
 
                                     {{-- Isi pengaduan --}}
                                     <div class="flex-1">
-                                        <h4 class="font-semibold text-gray-800 mb-1">{{ $complaint->title }}</h4>
+                                        <div class="flex justify-between items-start mb-2">
+                                            <h4 class="font-semibold text-gray-800">{{ $complaint->title }}</h4>
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium 
+                                                @if($complaint->status == 'resolved') bg-green-100 text-green-800
+                                                @elseif($complaint->status == 'processing') bg-blue-100 text-blue-800
+                                                @elseif($complaint->status == 'pending') bg-yellow-100 text-yellow-800
+                                                @else bg-red-100 text-red-800 @endif">
+                                                @if($complaint->status == 'pending') Menunggu
+                                                @elseif($complaint->status == 'processing') Diproses
+                                                @elseif($complaint->status == 'resolved') Selesai
+                                                @else Ditolak
+                                                @endif
+                                            </span>
+                                        </div>
                                         
                                         <div class="complaint-content" data-full="{{ $complaint->content }}">
                                             <p class="text-gray-600 text-sm mb-2 complaint-text">{{ Str::limit($complaint->content, 100) }}</p>
@@ -333,17 +356,19 @@
                     
                     textElement.textContent = shortText;
                     
-                    button.addEventListener('click', function() {
-                        if (!isExpanded) {
-                            textElement.textContent = fullText;
-                            button.innerHTML = '<i class="fas fa-chevron-up mr-1"></i>Tutup';
-                            isExpanded = true;
-                        } else {
-                            textElement.textContent = shortText;
-                            button.innerHTML = '<i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya';
-                            isExpanded = false;
-                        }
-                    });
+                    if (button) {
+                        button.addEventListener('click', function() {
+                            if (!isExpanded) {
+                                textElement.textContent = fullText;
+                                button.innerHTML = '<i class="fas fa-chevron-up mr-1"></i>Tutup';
+                                isExpanded = true;
+                            } else {
+                                textElement.textContent = shortText;
+                                button.innerHTML = '<i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya';
+                                isExpanded = false;
+                            }
+                        });
+                    }
                 } else {
                     // Jika teks pendek, sembunyikan tombol
                     if (button) button.style.display = 'none';
@@ -362,17 +387,19 @@
                     
                     textElement.textContent = shortText;
                     
-                    button.addEventListener('click', function() {
-                        if (!isExpanded) {
-                            textElement.textContent = fullText;
-                            button.innerHTML = '<i class="fas fa-chevron-up mr-1"></i>Tutup';
-                            isExpanded = true;
-                        } else {
-                            textElement.textContent = shortText;
-                            button.innerHTML = '<i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya';
-                            isExpanded = false;
-                        }
-                    });
+                    if (button) {
+                        button.addEventListener('click', function() {
+                            if (!isExpanded) {
+                                textElement.textContent = fullText;
+                                button.innerHTML = '<i class="fas fa-chevron-up mr-1"></i>Tutup';
+                                isExpanded = true;
+                            } else {
+                                textElement.textContent = shortText;
+                                button.innerHTML = '<i class="fas fa-chevron-down mr-1"></i>Baca selengkapnya';
+                                isExpanded = false;
+                            }
+                        });
+                    }
                 } else {
                     // Jika teks pendek, sembunyikan tombol
                     if (button) button.style.display = 'none';

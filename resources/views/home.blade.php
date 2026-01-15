@@ -83,6 +83,27 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
         }
         
+        /* Card dengan border berdasarkan status */
+        .complaint-card.pending-complaint {
+            border-left: 4px solid #ffc107;
+            background: linear-gradient(135deg, #fffef7 0%, #fff9e6 100%);
+        }
+        
+        .complaint-card.processing-complaint {
+            border-left: 4px solid #0d6efd;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e7f3ff 100%);
+        }
+        
+        .complaint-card.resolved-complaint {
+            border-left: 4px solid #28a745;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8f5e9 100%);
+        }
+        
+        .complaint-card.rejected-complaint {
+            border-left: 4px solid #dc3545;
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffe8e8 100%);
+        }
+        
         .my-complaints-card {
             background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
             border: 2px solid #28a745;
@@ -90,7 +111,7 @@
         
         .complaint-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: flex-start;
             margin-bottom: 1rem;
         }
@@ -124,22 +145,29 @@
             font-weight: 500;
         }
         
+        /* Status dengan warna kuning untuk pending */
         .status-pending {
             background: #fff3cd;
             color: #856404;
-            border: 1px solid #ffeaa7;
+            border: 1px solid #ffc107;
         }
         
         .status-processing {
             background: #cce5ff;
             color: #0056b3;
-            border: 1px solid #74c0fc;
+            border: 1px solid #0d6efd;
         }
         
         .status-resolved {
             background: #d4edda;
             color: #155724;
-            border: 1px solid #51cf66;
+            border: 1px solid #28a745;
+        }
+        
+        .status-rejected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #dc3545;
         }
         
         .stats-section {
@@ -299,6 +327,18 @@
         .nav-pills .nav-link.active {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6c757d;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: #dee2e6;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 
@@ -324,7 +364,14 @@
                         <li><a class="dropdown-item" href="#"><i class="fas fa-list me-2"></i>Pengaduan Saya</a></li>
                         <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Pengaturan</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="#"><i class="fas fa-sign-out-alt me-2"></i>Keluar</a></li>
+                        <li>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="fas fa-sign-out-alt me-2"></i>Keluar
+                                </button>
+                            </form>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -348,19 +395,19 @@
             <div class="quick-stats">
                 <div class="row">
                     <div class="col-3 quick-stat-item">
-                        <div class="quick-stat-number">3</div>
+                        <div class="quick-stat-number">{{ $stats['total'] ?? 0 }}</div>
                         <div class="quick-stat-label">Pengaduan Saya</div>
                     </div>
                     <div class="col-3 quick-stat-item">
-                        <div class="quick-stat-number">1</div>
+                        <div class="quick-stat-number">{{ $stats['pending'] ?? 0 }}</div>
                         <div class="quick-stat-label">Menunggu</div>
                     </div>
                     <div class="col-3 quick-stat-item">
-                        <div class="quick-stat-number">1</div>
+                        <div class="quick-stat-number">{{ $stats['processing'] ?? 0 }}</div>
                         <div class="quick-stat-label">Diproses</div>
                     </div>
                     <div class="col-3 quick-stat-item">
-                        <div class="quick-stat-number">1</div>
+                        <div class="quick-stat-number">{{ $stats['resolved'] ?? 0 }}</div>
                         <div class="quick-stat-label">Selesai</div>
                     </div>
                 </div>
@@ -372,9 +419,9 @@
                     Kelola pengaduan Anda dan pantau pengaduan masyarakat lainnya
                 </p>
                 <div class="d-flex justify-content-center gap-3">
-                    <button class="btn btn-success-custom" data-bs-toggle="modal" data-bs-target="#createComplaintModal">
+                    <a href="{{ route('complaints.create') }}" class="btn btn-success-custom">
                         <i class="fas fa-plus me-2"></i>Buat Pengaduan Baru
-                    </button>
+                    </a>
                     <a href="#keluhan" class="btn btn-primary-custom">
                         <i class="fas fa-eye me-2"></i>Lihat Semua Pengaduan
                     </a>
@@ -386,19 +433,19 @@
         <div class="stats-section">
             <div class="row">
                 <div class="col-md-3 stat-card">
-                    <div class="stat-number">245</div>
+                    <div class="stat-number">{{ $publicStats['total'] ?? 0 }}</div>
                     <div class="stat-label">Total Pengaduan</div>
                 </div>
                 <div class="col-md-3 stat-card">
-                    <div class="stat-number">89</div>
+                    <div class="stat-number">{{ $publicStats['processing'] ?? 0 }}</div>
                     <div class="stat-label">Sedang Diproses</div>
                 </div>
                 <div class="col-md-3 stat-card">
-                    <div class="stat-number">156</div>
+                    <div class="stat-number">{{ $publicStats['resolved'] ?? 0 }}</div>
                     <div class="stat-label">Telah Selesai</div>
                 </div>
                 <div class="col-md-3 stat-card">
-                    <div class="stat-number">7</div>
+                    <div class="stat-number">{{ $publicStats['average_days'] ?? 0 }}</div>
                     <div class="stat-label">Rata-rata Hari</div>
                 </div>
             </div>
@@ -426,112 +473,120 @@
                     <div class="tab-content" id="complaintTabContent">
                         <!-- All Complaints Tab -->
                         <div class="tab-pane fade show active" id="all" role="tabpanel">
-                            <!-- Sample Complaints -->
-                            <div class="complaint-card">
-                                <div class="complaint-header">
-                                    <div class="flex-grow-1">
-                                        <h5 class="complaint-title">Jalan Rusak di Kawasan Perumahan Indah</h5>
-                                        <div class="complaint-meta">
-                                            <span><i class="fas fa-user me-1"></i>Ahmad Susilo</span>
-                                            <span><i class="fas fa-map-marker-alt me-1"></i>Jakarta Selatan</span>
-                                            <span><i class="fas fa-clock me-1"></i>2 hari yang lalu</span>
+                            @forelse($allComplaints ?? [] as $complaint)
+                                <div class="complaint-card {{ $complaint->status }}-complaint">
+                                    <div class="complaint-header">
+                                        <div class="flex-grow-1">
+                                            <h5 class="complaint-title">{{ $complaint->title }}</h5>
+                                            <div class="complaint-meta">
+                                                <span><i class="fas fa-user me-1"></i>{{ $complaint->user->name }}</span>
+                                                <span><i class="fas fa-map-marker-alt me-1"></i>{{ $complaint->location }}</span>
+                                                <span><i class="fas fa-clock me-1"></i>{{ $complaint->created_at->diffForHumans() }}</span>
+                                            </div>
+                                        </div>
+                                        <span class="category-badge">{{ ucfirst(str_replace('_', ' ', $complaint->category)) }}</span>
+                                    </div>
+                                    <p class="complaint-content">
+                                        {{ Str::limit($complaint->content, 150) }}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="complaint-status status-{{ $complaint->status }}">
+                                            @if($complaint->status == 'pending') Menunggu
+                                            @elseif($complaint->status == 'processing') Sedang Diproses
+                                            @elseif($complaint->status == 'resolved') Selesai
+                                            @else Ditolak
+                                            @endif
+                                        </span>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-success me-2">
+                                                <i class="fas fa-thumbs-up"></i> {{ $complaint->likes ?? 0 }}
+                                            </button>
+                                            <a href="{{ route('complaints.show', $complaint->id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i> Detail
+                                            </a>
                                         </div>
                                     </div>
-                                    <span class="category-badge">Infrastruktur</span>
                                 </div>
-                                <p class="complaint-content">
-                                    Jalan di Perumahan Indah blok C sudah rusak parah dengan banyak lubang. Hal ini sangat mengganggu kenyamanan berkendara dan berpotensi menyebabkan kecelakaan...
-                                </p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="complaint-status status-processing">Sedang Diproses</span>
-                                    <div>
-                                        <button class="btn btn-sm btn-outline-success me-2"><i class="fas fa-thumbs-up"></i> 23</button>
-                                        <button class="btn btn-sm btn-outline-primary"><i class="fas fa-comment"></i> Komentar</button>
+                            @empty
+                                <div class="complaint-card">
+                                    <div class="empty-state">
+                                        <i class="fas fa-inbox"></i>
+                                        <p class="mb-0">Belum ada pengaduan tersedia.</p>
                                     </div>
                                 </div>
-                            </div>
+                            @endforelse
 
-                            <div class="complaint-card">
-                                <div class="complaint-header">
-                                    <div class="flex-grow-1">
-                                        <h5 class="complaint-title">Lampu Jalan Mati di Jalan Raya Utama</h5>
-                                        <div class="complaint-meta">
-                                            <span><i class="fas fa-user me-1"></i>Sari Dewi</span>
-                                            <span><i class="fas fa-map-marker-alt me-1"></i>Jakarta Pusat</span>
-                                            <span><i class="fas fa-clock me-1"></i>1 minggu yang lalu</span>
-                                        </div>
-                                    </div>
-                                    <span class="category-badge">Utilitas</span>
+                            @if(isset($allComplaints) && $allComplaints->hasPages())
+                                <div class="text-center mt-4">
+                                    {{ $allComplaints->links() }}
                                 </div>
-                                <p class="complaint-content">
-                                    Lampu penerangan jalan di sepanjang Jalan Raya Utama sudah mati sejak seminggu lalu. Kondisi ini sangat membahayakan pengguna jalan terutama di malam hari...
-                                </p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="complaint-status status-resolved">Selesai</span>
-                                    <div>
-                                        <button class="btn btn-sm btn-outline-success me-2"><i class="fas fa-thumbs-up"></i> 45</button>
-                                        <button class="btn btn-sm btn-outline-primary"><i class="fas fa-comment"></i> Komentar</button>
-                                    </div>
-                                </div>
-                            </div>
+                            @endif
                         </div>
 
                         <!-- My Complaints Tab -->
                         <div class="tab-pane fade" id="mine" role="tabpanel">
-                            <div class="complaint-card my-complaints-card">
-                                <div class="complaint-header">
-                                    <div class="flex-grow-1">
-                                        <h5 class="complaint-title">Sampah Menumpuk di TPS Wilayah RW 05</h5>
-                                        <div class="complaint-meta">
-                                            <span><i class="fas fa-user me-1"></i>{{ auth()->user()->name ?? 'User' }}</span>
-                                            <span><i class="fas fa-map-marker-alt me-1"></i>Jakarta Timur</span>
-                                            <span><i class="fas fa-clock me-1"></i>3 hari yang lalu</span>
+                            @forelse($myComplaints ?? [] as $complaint)
+                                <div class="complaint-card my-complaints-card {{ $complaint->status }}-complaint">
+                                    <div class="complaint-header">
+                                        <div class="flex-grow-1">
+                                            <h5 class="complaint-title">{{ $complaint->title }}</h5>
+                                            <div class="complaint-meta">
+                                                <span><i class="fas fa-user me-1"></i>{{ $complaint->user->name }}</span>
+                                                <span><i class="fas fa-map-marker-alt me-1"></i>{{ $complaint->location }}</span>
+                                                <span><i class="fas fa-clock me-1"></i>{{ $complaint->created_at->diffForHumans() }}</span>
+                                            </div>
+                                        </div>
+                                        <span class="my-complaint-badge"><i class="fas fa-user me-1"></i>Milik Saya</span>
+                                    </div>
+                                    <p class="complaint-content">
+                                        {{ Str::limit($complaint->content, 150) }}
+                                    </p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="complaint-status status-{{ $complaint->status }}">
+                                            @if($complaint->status == 'pending') Menunggu
+                                            @elseif($complaint->status == 'processing') Sedang Diproses
+                                            @elseif($complaint->status == 'resolved') Selesai
+                                            @else Ditolak
+                                            @endif
+                                        </span>
+                                        <div>
+                                            @if($complaint->status == 'pending')
+                                                <a href="{{ route('complaints.edit', $complaint->id) }}" class="btn btn-sm btn-outline-warning me-2">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <form method="POST" action="{{ route('complaints.destroy', $complaint->id) }}" class="d-inline">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Yakin ingin menghapus pengaduan ini?')">
+                                                        <i class="fas fa-trash"></i> Hapus
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <a href="{{ route('complaints.show', $complaint->id) }}" class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-eye"></i> Detail
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
-                                    <span class="my-complaint-badge"><i class="fas fa-user me-1"></i>Milik Saya</span>
                                 </div>
-                                <p class="complaint-content">
-                                    Sampah di TPS RW 05 sudah menumpuk tinggi dan mulai berbau. Hal ini mengganggu kenyamanan warga sekitar dan berpotensi menjadi sarang penyakit...
-                                </p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="complaint-status status-pending">Menunggu</span>
-                                    <div>
-                                        <button class="btn btn-sm btn-outline-warning me-2"><i class="fas fa-edit"></i> Edit</button>
-                                        <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i> Hapus</button>
+                            @empty
+                                <div class="complaint-card">
+                                    <div class="empty-state">
+                                        <i class="fas fa-inbox"></i>
+                                        <p class="mb-0">Anda belum membuat pengaduan.</p>
+                                        <a href="{{ route('complaints.create') }}" class="btn btn-success-custom mt-3">
+                                            <i class="fas fa-plus me-2"></i>Buat Pengaduan Pertama
+                                        </a>
                                     </div>
                                 </div>
-                            </div>
+                            @endforelse
 
-                            <div class="complaint-card my-complaints-card">
-                                <div class="complaint-header">
-                                    <div class="flex-grow-1">
-                                        <h5 class="complaint-title">Drainase Tersumbat di Jalan Mawar</h5>
-                                        <div class="complaint-meta">
-                                            <span><i class="fas fa-user me-1"></i>{{ auth()->user()->name ?? 'User' }}</span>
-                                            <span><i class="fas fa-map-marker-alt me-1"></i>Jakarta Selatan</span>
-                                            <span><i class="fas fa-clock me-1"></i>1 minggu yang lalu</span>
-                                        </div>
-                                    </div>
-                                    <span class="my-complaint-badge"><i class="fas fa-user me-1"></i>Milik Saya</span>
+                            @if(isset($myComplaints) && $myComplaints->hasPages())
+                                <div class="text-center mt-4">
+                                    {{ $myComplaints->links() }}
                                 </div>
-                                <p class="complaint-content">
-                                    Drainase di Jalan Mawar tersumbat sampah dan daun kering. Saat hujan, air menggenang dan menyebabkan banjir kecil di area tersebut...
-                                </p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span class="complaint-status status-resolved">Selesai</span>
-                                    <div>
-                                        <button class="btn btn-sm btn-outline-info"><i class="fas fa-eye"></i> Detail</button>
-                                    </div>
-                                </div>
-                            </div>
+                            @endif
                         </div>
-                    </div>
-
-                    <!-- Load More Button -->
-                    <div class="text-center mt-4">
-                        <button class="btn btn-outline-light">
-                            <i class="fas fa-arrow-down me-2"></i>Muat Lebih Banyak
-                        </button>
                     </div>
                 </div>
 
@@ -539,37 +594,31 @@
                 <div class="col-md-4">
                     <div class="complaint-card">
                         <h5><i class="fas fa-filter me-2"></i>Filter Pengaduan</h5>
-                        <form>
+                        <form method="GET" action="{{ route('dashboard') }}">
                             <div class="mb-3">
                                 <label class="form-label">Kategori</label>
-                                <select class="form-select">
-                                    <option>Semua Kategori</option>
-                                    <option>Infrastruktur</option>
-                                    <option>Kebersihan</option>
-                                    <option>Utilitas</option>
-                                    <option>Keamanan</option>
-                                    <option>Layanan Publik</option>
+                                <select name="category" class="form-select">
+                                    <option value="">Semua Kategori</option>
+                                    @foreach($categories ?? [] as $key => $label)
+                                        <option value="{{ $key }}" {{ request('category') == $key ? 'selected' : '' }}>
+                                            {{ $label }}
+                                        </option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Status</label>
-                                <select class="form-select">
-                                    <option>Semua Status</option>
-                                    <option>Menunggu</option>
-                                    <option>Sedang Diproses</option>
-                                    <option>Selesai</option>
+                                <select name="status" class="form-select">
+                                    <option value="">Semua Status</option>
+                                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Menunggu</option>
+                                    <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Sedang Diproses</option>
+                                    <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>Selesai</option>
+                                    <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Ditolak</option>
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Wilayah</label>
-                                <select class="form-select">
-                                    <option>Semua Wilayah</option>
-                                    <option>Jakarta Pusat</option>
-                                    <option>Jakarta Selatan</option>
-                                    <option>Jakarta Timur</option>
-                                    <option>Jakarta Barat</option>
-                                    <option>Jakarta Utara</option>
-                                </select>
+                                <label class="form-label">Cari</label>
+                                <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Cari pengaduan...">
                             </div>
                             <button type="submit" class="btn btn-primary-custom w-100">
                                 <i class="fas fa-search me-2"></i>Terapkan Filter
@@ -577,39 +626,31 @@
                         </form>
                     </div>
 
+                    @if(isset($categoryStats) && count($categoryStats) > 0)
                     <div class="complaint-card">
                         <h5><i class="fas fa-chart-bar me-2"></i>Kategori Populer</h5>
-                        <div class="mb-2 d-flex justify-content-between">
-                            <span>Infrastruktur</span>
-                            <span class="badge bg-primary">45</span>
-                        </div>
-                        <div class="mb-2 d-flex justify-content-between">
-                            <span>Kebersihan</span>
-                            <span class="badge bg-success">32</span>
-                        </div>
-                        <div class="mb-2 d-flex justify-content-between">
-                            <span>Utilitas</span>
-                            <span class="badge bg-warning">28</span>
-                        </div>
-                        <div class="mb-2 d-flex justify-content-between">
-                            <span>Keamanan</span>
-                            <span class="badge bg-danger">15</span>
-                        </div>
+                        @foreach($categoryStats as $stat)
+                            <div class="mb-2 d-flex justify-content-between">
+                                <span>{{ ucfirst(str_replace('_', ' ', $stat->category)) }}</span>
+                                <span class="badge bg-primary">{{ $stat->count }}</span>
+                            </div>
+                        @endforeach
                     </div>
+                    @endif
 
                     <!-- Quick Actions -->
                     <div class="complaint-card">
                         <h5><i class="fas fa-bolt me-2"></i>Aksi Cepat</h5>
                         <div class="d-grid gap-2">
-                            <button class="btn btn-success-custom" data-bs-toggle="modal" data-bs-target="#createComplaintModal">
+                            <a href="{{ route('complaints.create') }}" class="btn btn-success-custom">
                                 <i class="fas fa-plus me-2"></i>Buat Pengaduan
-                            </button>
-                            <button class="btn btn-outline-primary">
+                            </a>
+                            <a href="{{ route('complaints.index') }}" class="btn btn-outline-primary">
                                 <i class="fas fa-list me-2"></i>Pengaduan Saya
-                            </button>
-                            <button class="btn btn-outline-info">
-                                <i class="fas fa-chart-line me-2"></i>Statistik
-                            </button>
+                            </a>
+                            <a href="{{ route('complaints.public') }}" class="btn btn-outline-info">
+                                <i class="fas fa-eye me-2"></i>Lihat Semua
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -619,144 +660,15 @@
 
     <!-- Floating Action Button -->
     <div class="floating-action">
-        <button class="floating-btn" data-bs-toggle="modal" data-bs-target="#createComplaintModal" title="Buat Pengaduan Baru">
+        <a href="{{ route('complaints.create') }}" class="floating-btn" title="Buat Pengaduan Baru">
             <i class="fas fa-plus"></i>
-        </button>
-    </div>
-
-    <!-- Create Complaint Modal -->
-    <div class="modal fade" id="createComplaintModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Buat Pengaduan Baru</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Judul Pengaduan</label>
-                                <input type="text" class="form-control" placeholder="Masukkan judul pengaduan" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Kategori</label>
-                                <select class="form-select" required>
-                                    <option value="">Pilih Kategori</option>
-                                    <option>Infrastruktur</option>
-                                    <option>Kebersihan</option>
-                                    <option>Utilitas</option>
-                                    <option>Keamanan</option>
-                                    <option>Layanan Publik</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Lokasi</label>
-                                <input type="text" class="form-control" placeholder="Alamat/lokasi pengaduan" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Tingkat Urgensi</label>
-                                <select class="form-select" required>
-                                    <option value="">Pilih Tingkat Urgensi</option>
-                                    <option>Rendah</option>
-                                    <option>Sedang</option>
-                                    <option>Tinggi</option>
-                                    <option>Sangat Urgent</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Deskripsi Pengaduan</label>
-                            <textarea class="form-control" rows="4" placeholder="Jelaskan pengaduan Anda secara detail..." required></textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Upload Foto (Opsional)</label>
-                            <input type="file" class="form-control" accept="image/*" multiple>
-                            <small class="form-text text-muted">Format: JPG, PNG, maksimal 5MB per file</small>
-                        </div>
-                        <div class="mb-3">
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" id="agreeTerms" required>
-                                <label class="form-check-label" for="agreeTerms">
-                                    Saya menyetujui bahwa informasi yang saya berikan adalah benar dan dapat dipertanggungjawabkan
-                                </label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Batal
-                    </button>
-                    <button type="submit" class="btn btn-success-custom">
-                        <i class="fas fa-paper-plane me-1"></i>Kirim Pengaduan
-                    </button>
-                </div>
-            </div>
-        </div>
+        </a>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Auto-close alerts after 5 seconds
-        setTimeout(function() {
-            $('.alert').fadeOut();
-        }, 5000);
-
-        // Form validation
-        document.getElementById('createComplaintModal').addEventListener('show.bs.modal', function() {
-            // Reset form when modal opens
-            this.querySelector('form').reset();
-        });
-
-        // Handle form submission
-        document.querySelector('#createComplaintModal form').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            // Here you would normally send the data to your Laravel backend
-            // For demo purposes, we'll just show a success message
-            
-            const modal = bootstrap.Modal.getInstance(document.getElementById('createComplaintModal'));
-            modal.hide();
-            
-            // Show success message (you can replace this with a proper notification system)
-            alert('Pengaduan berhasil dikirim! Anda akan mendapat notifikasi ketika ada update.');
-        });
-
-        // Handle tab switching
-        document.querySelectorAll('#complaintTabs button').forEach(tab => {
-            tab.addEventListener('shown.bs.tab', function(e) {
-                // You can add logic here to load different content based on the active tab
-                console.log('Active tab:', e.target.id);
-            });
-        });
-
-        // Handle like button clicks
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.btn-outline-success')) {
-                const button = e.target.closest('.btn-outline-success');
-                if (button.innerHTML.includes('thumbs-up')) {
-                    // Toggle like state
-                    const currentCount = parseInt(button.textContent.match(/\d+/)[0]);
-                    const isLiked = button.classList.contains('btn-success');
-                    
-                    if (isLiked) {
-                        button.classList.remove('btn-success');
-                        button.classList.add('btn-outline-success');
-                        button.innerHTML = `<i class="fas fa-thumbs-up"></i> ${currentCount - 1}`;
-                    } else {
-                        button.classList.remove('btn-outline-success');
-                        button.classList.add('btn-success');
-                        button.innerHTML = `<i class="fas fa-thumbs-up"></i> ${currentCount + 1}`;
-                    }
-                }
-            }
-        });
-
         // Smooth scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -769,23 +681,6 @@
                     });
                 }
             });
-        });
-
-        // Add loading state to buttons
-        document.addEventListener('click', function(e) {
-            if (e.target.closest('.btn-primary-custom, .btn-success-custom')) {
-                const button = e.target.closest('.btn-primary-custom, .btn-success-custom');
-                const originalText = button.innerHTML;
-                
-                button.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Loading...';
-                button.disabled = true;
-                
-                // Re-enable after 2 seconds (replace with actual API call completion)
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 2000);
-            }
         });
     </script>
 </body>

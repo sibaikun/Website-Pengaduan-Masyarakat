@@ -106,60 +106,60 @@
                         </div>
                         <div class="p-6 space-y-4 max-h-96 overflow-y-auto flex-1">
                             @forelse($recentComplaints as $complaint)
-                    <div class="border-l-4 
-                        @if($complaint->status == 'resolved') border-green-500 bg-green-50
-                        @elseif($complaint->status == 'processing') border-yellow-500 bg-yellow-50
-                        @else border-red-500 bg-red-50 @endif
-                        pl-4 py-3 rounded-r-lg hover:shadow-sm transition-all flex space-x-4">
-    
-                    {{-- Thumbnail gambar jika ada, kalau tidak tampilkan kotak kosong --}}
-                    @if($complaint->image_path)
-                        <div class="flex-shrink-0">
-                            <img src="{{ asset('storage/'.$complaint->image_path) }}" 
-                                alt="Complaint Image" 
-                                class="w-16 h-16 rounded-lg object-cover border border-gray-200 cursor-pointer"
-                                onclick="openImageModal('{{ asset('storage/'.$complaint->image_path) }}')">
-                        </div>
-                    @else
-                        <div class="flex-shrink-0 w-16 h-16 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-500 bg-gray-50">
-                            Tidak ada foto
-                        </div>
-                    @endif
+                                <div class="border-l-4 
+                                    @if($complaint->status == 'resolved') border-green-500 bg-green-50
+                                    @elseif($complaint->status == 'processing') border-blue-500 bg-blue-50
+                                    @elseif($complaint->status == 'pending') border-yellow-500 bg-yellow-50
+                                    @else border-red-500 bg-red-50 @endif
+                                    pl-4 py-3 rounded-r-lg hover:shadow-sm transition-all flex space-x-4">
 
+                                    {{-- Thumbnail gambar jika ada, kalau tidak tampilkan kotak kosong --}}
+                                    @if($complaint->image_path)
+                                        <div class="flex-shrink-0">
+                                            <img src="{{ asset('storage/'.$complaint->image_path) }}" 
+                                                alt="Complaint Image" 
+                                                class="w-16 h-16 rounded-lg object-cover border border-gray-200 cursor-pointer"
+                                                onclick="openImageModal('{{ asset('storage/'.$complaint->image_path) }}')">
+                                        </div>
+                                    @else
+                                        <div class="flex-shrink-0 w-16 h-16 rounded-lg border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-500 bg-gray-50">
+                                            Tidak ada foto
+                                        </div>
+                                    @endif
 
+                                    <div class="flex-1">
+                                        <div class="flex justify-between items-start mb-2">
+                                            <h4 class="font-semibold text-gray-800">{{ $complaint->title }}</h4>
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium 
+                                                @if($complaint->status == 'resolved') bg-green-100 text-green-800
+                                                @elseif($complaint->status == 'processing') bg-blue-100 text-blue-800
+                                                @elseif($complaint->status == 'pending') bg-yellow-100 text-yellow-800
+                                                @else bg-red-100 text-red-800 @endif">
+                                                {{ ucfirst($complaint->status) }}
+                                            </span>
+                                        </div>
 
-                        <div class="flex-1">
-                            <div class="flex justify-between items-start mb-2">
-                                <h4 class="font-semibold text-gray-800">{{ $complaint->title }}</h4>
-                                <span class="px-2 py-1 rounded-full text-xs font-medium 
-                                    @if($complaint->status == 'resolved') bg-green-100 text-green-800
-                                    @elseif($complaint->status == 'processing') bg-yellow-100 text-yellow-800
-                                    @else bg-red-100 text-red-800 @endif">
-                                    {{ ucfirst($complaint->status) }}
-                                </span>
-                            </div>
+                                        <p class="text-gray-600 text-sm mb-2">
+                                            {{ Str::limit($complaint->content, 80) }}
+                                        </p>
 
-                            <p class="text-gray-600 text-sm mb-2">
-                                {{ Str::limit($complaint->content, 80) }}
-                            </p>
+                                        {{-- Tanggapan admin jika ada --}}
+                                        @if($complaint->admin_response)
+                                            <div class="text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded p-2 mb-2">
+                                                <i class="fas fa-reply mr-1"></i> {{ Str::limit($complaint->admin_response, 80) }}
+                                            </div>
+                                        @endif
 
-                    {{-- Tanggapan admin jika ada --}}
-                            @if($complaint->admin_response)
-                                <div class="text-sm text-blue-700 bg-blue-50 border border-blue-200 rounded p-2 mb-2">
-                                    <i class="fas fa-reply mr-1"></i> {{ Str::limit($complaint->admin_response, 80) }}
+                                        <div class="flex justify-between items-center text-xs text-gray-500">
+                                            <div class="flex items-center">
+                                                <i class="fas fa-user mr-1"></i> {{ $complaint->user->name }}
+                                            </div>
+                                            <div class="flex items-center">
+                                                <i class="fas fa-clock mr-1"></i> {{ $complaint->created_at->diffForHumans() }}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                            @endif
-
-                            <div class="flex justify-between items-center text-xs text-gray-500">
-                                <div class="flex items-center">
-                                    <i class="fas fa-user mr-1"></i> {{ $complaint->user->name }}
-                                </div>
-                                <div class="flex items-center">
-                                    <i class="fas fa-clock mr-1"></i> {{ $complaint->created_at->diffForHumans() }}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                             @empty
                                 <div class="text-center py-8">
                                     <i class="fas fa-inbox text-gray-300 text-4xl mb-4"></i>

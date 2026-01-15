@@ -149,18 +149,8 @@
         <!-- Footer -->
         <footer class="bg-gray-800 text-white py-8">
             <div class="container mx-auto px-4 text-center">
-                <div class="flex justify-center items-center mb-4">
-                    <div class="bg-white p-2 rounded-lg mr-3">
-                        <img src="{{ asset('images/Lambang_Kota_Semarang.png') }}" 
-                            alt="Logo Semarang" 
-                            class="h-12 bg-white p-1 rounded-lg shadow">
-                    </div>
-                    <span class="text-xl font-bold">Kelurahan Sawah Besar</span>
-                </div>
                 <p class="text-gray-400 mb-4">Portal Pengaduan Masyarakat</p>
-                <p class="text-gray-500 text-sm">
-                    © 2025 Kelurahan Sawah Besar - Kota Semarang. All rights reserved.
-                </p>
+                <p class="text-gray-500 text-sm">© 2025 Kelurahan Sawah Besar - Kota Semarang. All rights reserved.</p>
             </div>
         </footer>
     </div>
